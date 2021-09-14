@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { ReactElement } from 'react';
+import { GameStateContext } from '@/context';
+import { Suit } from '@/enums';
+import { Card } from '@/types';
+import { Stock, Tableau } from '@/components';
+import { getAllPossibleCards, shuffle } from './utils/card';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+export const App = (): ReactElement => {
+  const allPossibleCards = getAllPossibleCards();
+  const shuffledCards = shuffle(allPossibleCards);
+  // This will be mutated
+  const cardsToDeal = shuffledCards.slice();
+  const tableau = Array.from({ length: 7 }, (_, i) => i).map((index) =>
+    cardsToDeal.splice(0, index + 1)
   );
-}
+  const stock = cardsToDeal.slice();
 
-export default App;
+  return (
+    <GameStateContext.Provider
+      value={{
+        stock,
+        foundations: new Map<Suit, Card[]>(),
+        tableau,
+      }}
+    >
+      <h1>Solitaire</h1>
+      <Stock />
+      <Tableau />
+    </GameStateContext.Provider>
+  );
+};
